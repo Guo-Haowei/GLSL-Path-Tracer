@@ -1,0 +1,82 @@
+#include "common.glsl"
+
+vec3 RayColor(inout Ray ray, inout uint state) {
+    vec3 radiance = vec3(0.0);
+    vec3 throughput = vec3(1.0);
+
+    for (int i = 0; i < MAX_BOUNCE; ++i) {
+        bool anyHit = HitScene(ray);
+
+        if (anyHit) {
+            ray.origin = ray.origin + ray.t * ray.direction;
+            ray.t = RAY_T_MAX;
+            Material mat = g_materials[ray.materialId];
+            float specularChance = Random(state) > mat.reflectChance ? 0.0 : 1.0;
+
+            vec3 diffuseDir = normalize(ray.hitNormal + RandomUnitVector(state));
+            vec3 reflectDir = reflect(ray.direction, ray.hitNormal);
+            reflectDir = normalize(mix(reflectDir, diffuseDir, mat.roughness * mat.roughness));
+            ray.direction = normalize(mix(diffuseDir, reflectDir, specularChance));
+
+            vec3 diffuseColor = texture(albedoTexture, vec3(ray.hitUv, mat.albedoMapLevel)).rgb;
+            diffuseColor = mix(vec3(1.0), diffuseColor, ray.hasAlbedoMap);
+            diffuseColor *= mat.albedo;
+
+            radiance += mat.emissive * throughput;
+            throughput *= diffuseColor;
+
+        } else {
+            vec2 uv = SampleSphericalMap(normalize(ray.direction));
+            radiance += texture(envTexture, uv).rgb * throughput;
+            break;
+        }
+    }
+
+    return radiance;
+}
+
+uint g_seed;
+
+void main() {
+    // random seed
+    // [0, width], [0, height]
+    ivec2 iPixelCoords = ivec2(gl_GlobalInvocationID.xy);
+    iPixelCoords += tileOffset;
+    vec2 fPixelCoords = vec2(float(iPixelCoords.x), float(iPixelCoords.y));
+    ivec2 dims = imageSize(outImage);
+    g_seed = uint(uint(iPixelCoords.x) * uint(1973) + uint(iPixelCoords.y) * uint(9277) + uint(frame) * uint(26699)) | uint(1);
+
+    // [-0.5, 0.5]
+    vec2 jitter = vec2(Random(g_seed), Random(g_seed)) - 0.5;
+
+    vec3 rayDir;
+    {
+        // screen position from [-1, 1]
+        vec2 uvJitter = (fPixelCoords + jitter) / dims;
+        vec2 screen = 2.0 * uvJitter - 1.0;
+
+        // adjust for aspect ratio
+        vec2 resolution = vec2(float(dims.x), float(dims.y));
+        float aspectRatio = resolution.x / resolution.y;
+        screen.y /= aspectRatio;
+        float halfFov = camFov;
+        float camDistance = tan(halfFov * PI / 180.0);
+        rayDir = vec3(screen, camDistance);
+        rayDir = normalize(mat3(camRight, camUp, camFwd) * rayDir);
+    }
+
+    Ray ray;
+    ray.origin = camPos;
+    ray.direction = rayDir;
+    ray.t = RAY_T_MAX;
+
+    vec4 pixel = vec4(RayColor(ray, g_seed), 1.0);
+
+    if (dirty == 0) {
+        vec4 colorSoFar = imageLoad(outImage, iPixelCoords);
+        pixel += colorSoFar;
+    }
+
+    imageStore(outImage, iPixelCoords, pixel);
+}
+
