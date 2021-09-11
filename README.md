@@ -4,14 +4,14 @@ A GLSL path tracer
 
 ### Sceenshots
 <p float="left">
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/cornell-box.png" width="30%" />
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/monkey.png" width="30%" />
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/dragon.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/cornell-box.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/monkey.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/dragon.png" width="30%" />
 </p>
 <p float="left">
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/sibenik.png" width="30%" />
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/sponza.png" width="30%" />
-  <img src="https://github.com/Guo-Haowei/pt/blob/master/data/screenshots/conference.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/sibenik.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/sponza.png" width="30%" />
+  <img src="https://github.com/Guo-Haowei/GLSL-Path-Tracer/blob/master/data/screenshots/conference.png" width="30%" />
 </p>
 
 ### References
